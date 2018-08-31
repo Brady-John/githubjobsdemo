@@ -1,7 +1,7 @@
 package com.brady.githubjobdemo.data.api.github
 
 import com.brady.githubjobdemo.data.DataModule
-import com.brady.githubjobdemo.data.api.github.model.Commit
+import com.brady.githubjobdemo.data.api.github.model.Job
 import com.brady.githubjobdemo.loadResourceAsString
 import io.reactivex.observers.TestObserver
 import okhttp3.OkHttpClient
@@ -32,40 +32,41 @@ class GitHubApiServiceTest {
 
     @Test
     @Throws(Exception::class)
-    fun testListCommitsSuccessful() {
-        server.enqueue(MockResponse().setBody("/api/listCommits_success.json".loadResourceAsString()))
+    fun testListJobsSuccessful() {
+        server.enqueue(MockResponse().setBody("/api/listJobs_success.json".loadResourceAsString()))
         server.start()
 
         val api = buildApi(server)
-        val subscriber = TestObserver<Response<List<Commit>>>()
-        api.listCommits("test_user", "test_repository").subscribe(subscriber)
+        val subscriber = TestObserver<Response<List<Job>>>()
+        api.listJobs().subscribe(subscriber)
         subscriber.await(1, TimeUnit.SECONDS)
 
         val serverRequest = server.takeRequest()
         assertEquals("GET", serverRequest.method)
-        assertEquals("/repos/test_user/test_repository/commits", serverRequest.path)
+        assertEquals("/repos/test_user/test_repository/jobs", serverRequest.path)
 
         subscriber.assertNoErrors()
         subscriber.assertComplete()
         subscriber.assertValueCount(1)
         val response = subscriber.values()[0]
         assertTrue(response.isSuccessful)
-        val commits = response.body()
-        assertEquals(1, commits!!.size.toLong())
-        val commit = commits[0]
-        assertEquals("test message", commit.commitMessage)
-        assertEquals("test author", commit.author)
+        val jobs = response.body()
+        assertEquals(1, jobs!!.size.toLong())
+        val job = jobs[0]
+        assertEquals("test company", job.company)
+        assertEquals("test title", job.title)
+        assertEquals("test location", job.location)
     }
 
     @Test
     @Throws(Exception::class)
-    fun testListCommitsUnsuccessful() {
+    fun testListJobsUnsuccessful() {
         server.enqueue(MockResponse().setResponseCode(404).setBody("{\"message\": \"Not Found\"}"))
         server.start()
 
         val api = buildApi(server)
-        val subscriber = TestObserver<Response<List<Commit>>>()
-        api.listCommits("test_user", "test_repository").subscribe(subscriber)
+        val subscriber = TestObserver<Response<List<Job>>>()
+        api.listJobs().subscribe(subscriber)
         subscriber.await(1, TimeUnit.SECONDS)
 
         subscriber.assertNoErrors()
@@ -78,10 +79,10 @@ class GitHubApiServiceTest {
 
     @Test
     @Throws(Exception::class)
-    fun testListCommitsNetworkError() {
+    fun testListJobsNetworkError() {
         val api = buildApi("http://bad_url/")
-        val subscriber = TestObserver<Response<List<Commit>>>()
-        api.listCommits("test_user", "test_repository").subscribe(subscriber)
+        val subscriber = TestObserver<Response<List<Job>>>()
+        api.listJobs().subscribe(subscriber)
         subscriber.await(1, TimeUnit.SECONDS)
 
         subscriber.assertNoValues()

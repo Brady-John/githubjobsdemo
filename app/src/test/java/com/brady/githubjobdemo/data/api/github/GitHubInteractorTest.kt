@@ -1,8 +1,8 @@
 package com.brady.githubjobdemo.data.api.github
 
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadCommitsRequest
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadCommitsResponse
-import com.brady.githubjobdemo.data.api.github.model.CommitTestHelper.stubCommit
+import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsRequest
+import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsResponse
+import com.brady.githubjobdemo.data.api.github.model.JobTestHelper.stubJob
 import com.nhaarman.mockito_kotlin.whenever
 import io.reactivex.Single
 import io.reactivex.observers.TestObserver
@@ -36,12 +36,12 @@ class GitHubInteractorTest {
 
     @Test
     @Throws(Exception::class)
-    fun testLoadCommits() {
-        val mockResponse = Single.just(Response.success(asList(stubCommit("test name", "test message"))))
-        whenever(api.listCommits(anyString(), anyString())).thenReturn(mockResponse)
+    fun testLoadJobs() {
+        val mockResponse = Single.just(Response.success(asList(stubJob("test name", "test message"))))
+        whenever(api.listJobs(anyString())).thenReturn(mockResponse)
 
-        val subscriber = TestObserver<LoadCommitsResponse>()
-        interactor.loadCommits(LoadCommitsRequest("user", "repo")).subscribeWith(subscriber)
+        val subscriber = TestObserver<LoadJobsResponse>()
+        interactor.loadJobs(LoadJobsRequest( "repo")).subscribeWith(subscriber)
         subscriber.await(1, TimeUnit.SECONDS)
 
         subscriber.assertValueCount(1)
@@ -49,12 +49,11 @@ class GitHubInteractorTest {
         subscriber.assertComplete()
 
         val response = subscriber.values()[0]
-        assertEquals("user", response.request.user)
         assertEquals("repo", response.request.repository)
-        assertEquals(1, response.commits.size.toLong())
+        assertEquals(1, response.jobs.size.toLong())
 
-        val commit = response.commits[0]
-        assertEquals("test name", commit.author)
-        assertEquals("test message", commit.commitMessage)
+        val job = response.jobs[0]
+        assertEquals("test name", job.author)
+        assertEquals("test message", job.jobMessage)
     }
 }

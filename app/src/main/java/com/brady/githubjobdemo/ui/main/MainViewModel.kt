@@ -8,8 +8,7 @@ import com.brady.githubjobdemo.BR
 import com.brady.githubjobdemo.BuildConfig
 import com.brady.githubjobdemo.R
 import com.brady.githubjobdemo.data.api.github.GitHubInteractor
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadCommitsRequest
-import com.brady.githubjobdemo.data.api.github.model.Commit
+import com.brady.githubjobdemo.data.api.github.model.Job
 import com.brady.githubjobdemo.ui.BaseViewModel
 import com.brady.githubjobdemo.ui.SimpleSnackbarMessage
 import com.brady.githubjobdemo.util.RxUtils.delayAtLeast
@@ -27,62 +26,53 @@ class MainViewModel @Inject constructor(
 
     @Parcelize
     class State(
-            var username: String = "",
             var repository: String = "") : Parcelable
 
-    sealed class Commits {
-        class Loading : Commits()
-        class Result(val commits: List<Commit>) : Commits()
-        class Error(val message: String) : Commits()
+    sealed class Jobs {
+        class Loading : Jobs()
+        class Result(val jobs: List<Job>) : Jobs()
+        class Error(val message: String) : Jobs()
     }
 
     override fun setupViewModel() {
-        username = "madebyatomicrobot"  // NON-NLS
         repository = "android-starter-project"  // NON-NLS
 
-        fetchCommits()
+        fetchJobs()
     }
 
     @VisibleForTesting
-    internal var commits: Commits = Commits.Result(emptyList())
+    internal var jobs: Jobs = Jobs.Result(emptyList())
         set(value) {
             field = value
 
             notifyPropertyChanged(BR.loading)
-            notifyPropertyChanged(BR.commits)
-            notifyPropertyChanged(BR.fetchCommitsEnabled)
+            notifyPropertyChanged(BR.jobs)
+            notifyPropertyChanged(BR.fetchJobsEnabled)
 
             when (value) {
-                is Commits.Error -> snackbarMessage.value = value.message
+                is Jobs.Error -> snackbarMessage.value = value.message
             }
         }
 
     val snackbarMessage = SimpleSnackbarMessage()
 
-    var username: String
-        @Bindable get() = state.username
-        set(value) {
-            state.username = value
-            notifyPropertyChanged(BR.username)
-        }
-
-    var repository: String
+     var repository: String
         @Bindable get() = state.repository
         set(value) {
             state.repository = value
             notifyPropertyChanged(BR.repository)
         }
 
-    @Bindable("username", "repository")
-    fun isFetchCommitsEnabled(): Boolean = commits !is Commits.Loading && !username.isEmpty() && !repository.isEmpty()
+    @Bindable("repository")
+    fun isFetchJobsEnabled(): Boolean = jobs !is Jobs.Loading && !repository.isEmpty()
 
     @Bindable
-    fun isLoading(): Boolean = commits is Commits.Loading
+    fun isLoading(): Boolean = jobs is Jobs.Loading
 
     @Bindable
-    fun getCommits() = commits.let {
+    fun getJobs() = jobs.let {
         when (it) {
-            is Commits.Result -> it.commits
+            is Jobs.Result -> it.jobs
             else -> emptyList()
         }
     }
@@ -91,15 +81,15 @@ class MainViewModel @Inject constructor(
 
     fun getFingerprint(): String = BuildConfig.VERSION_FINGERPRINT
 
-    fun fetchCommits() {
-        commits = Commits.Loading()
-        disposables.add(delayAtLeast(gitHubInteractor.loadCommits(LoadCommitsRequest(username, repository)), loadingDelayMs)
-                .map { it.commits }  // Pull the commits out of the response
+    fun fetchJobs() {
+        jobs = Jobs.Loading()
+        disposables.add(delayAtLeast(gitHubInteractor.loadJobs(), loadingDelayMs)
+                .map { it.jobs }  // Pull the jobs out of the response
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { commits = Commits.Result(it) },
-                        { commits = Commits.Error(it.message ?: app.getString(R.string.error_unexpected)) }))
+                        { jobs = Jobs.Result(it) },
+                        { jobs = Jobs.Error(it.message ?: app.getString(R.string.error_unexpected)) }))
     }
 
     companion object {

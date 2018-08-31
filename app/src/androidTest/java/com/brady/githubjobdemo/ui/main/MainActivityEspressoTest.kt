@@ -10,11 +10,9 @@ import com.brady.githubjobdemo.EspressoMatchers.regex
 import com.brady.githubjobdemo.MainApplicationDaggerMockRule
 import com.brady.githubjobdemo.R
 import com.brady.githubjobdemo.data.api.github.GitHubInteractor
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadCommitsRequest
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadCommitsResponse
-import com.brady.githubjobdemo.data.api.github.model.Author
-import com.brady.githubjobdemo.data.api.github.model.Commit
-import com.brady.githubjobdemo.data.api.github.model.CommitDetails
+import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsRequest
+import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsResponse
+import com.brady.githubjobdemo.data.api.github.model.Job
 import com.brady.githubjobdemo.withRecyclerView
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
@@ -36,51 +34,53 @@ class MainActivityEspressoTest {
 
     @Test
     fun testBuildFingerprint() {
-        whenever(gitHubInteractor.loadCommits(any())).thenReturn(Observable.empty())
+        whenever(gitHubInteractor.loadJobs(any())).thenReturn(Observable.empty())
 
         testRule.launchActivity(null)
         onView(withId(R.id.fingerprint)).check(matches(withText(regex("Fingerprint: .+"))))
     }
 
     @Test
-    fun testFetchCommitsEnabledState() {
-        val response = LoadCommitsResponse(
-                LoadCommitsRequest("username", "repository"),
+    fun testFetchJobsEnabledState() {
+        val response = LoadJobsResponse(
+                LoadJobsRequest("repository"),
                 emptyList())
-        whenever(gitHubInteractor.loadCommits(any())).thenReturn(Observable.just(response))
+        whenever(gitHubInteractor.loadJobs(any())).thenReturn(Observable.just(response))
 
         testRule.launchActivity(null)
-        onView(withId(R.id.fetch_commits)).check(matches(isEnabled()))
+        onView(withId(R.id.get_jobs)).check(matches(isEnabled()))
 
-        onView(withId(R.id.username)).perform(clearText())
-        onView(withId(R.id.fetch_commits)).check(matches(not(isEnabled())))
+        //onView(withId(R.id.username)).perform(clearText())
+        onView(withId(R.id.get_jobs)).check(matches(not(isEnabled())))
 
-        onView(withId(R.id.username)).perform(typeText("username"))
-        onView(withId(R.id.fetch_commits)).check(matches(isEnabled()))
+        //onView(withId(R.id.username)).perform(typeText("username"))
+        onView(withId(R.id.get_jobs)).check(matches(isEnabled()))
 
-        onView(withId(R.id.repository)).perform(clearText())
-        onView(withId(R.id.fetch_commits)).check(matches(not(isEnabled())))
+        //onView(withId(R.id.repository)).perform(clearText())
+        onView(withId(R.id.get_jobs)).check(matches(not(isEnabled())))
     }
 
     @Test
-    fun testFetchAndDisplayCommits() {
-        val response = buildMockLoadCommitsResponse()
-        whenever(gitHubInteractor.loadCommits(any())).thenReturn(response)
+    fun testGetAndDisplayJobs() {
+        val response = buildMockLoadJobsResponse()
+        whenever(gitHubInteractor.loadJobs(any())).thenReturn(response)
 
         testRule.launchActivity(null)
         closeSoftKeyboard()
 
-        onView(withRecyclerView(R.id.commits)
-                .atPositionOnView(0, R.id.author))
+        onView(withRecyclerView(R.id.jobs)
+                .atPositionOnView(0, R.id.job_title))
                 .check(matches(withText("Author: Test author")))
-        onView(withRecyclerView(R.id.commits)
-                .atPositionOnView(0, R.id.message))
-                .check(matches(withText("Test commit message")))
+        onView(withRecyclerView(R.id.jobs)
+                .atPositionOnView(0, R.id.company))
+                .check(matches(withText("Test job message")))
     }
 
-    private fun buildMockLoadCommitsResponse(): Observable<LoadCommitsResponse> {
-        val request = LoadCommitsRequest("madebyatomicrobot", "android-starter-project")
-        val commit = Commit(CommitDetails("Test commit message", Author("Test author")))
-        return Observable.just(LoadCommitsResponse(request, listOf(commit)))
+    private fun buildMockLoadJobsResponse(): Observable<LoadJobsResponse> {
+        val request = LoadJobsRequest("android-starter-project")
+        val job = Job("Atomic Robot", "Senior Engineer", "Mason, OH")
+//                "https://atomicrobot.com/", "Full Time",
+//                "Thu August 30 19:46:36 UTC 2018", "Awesome Job")
+        return Observable.just(LoadJobsResponse(request, listOf(job)))
     }
 }

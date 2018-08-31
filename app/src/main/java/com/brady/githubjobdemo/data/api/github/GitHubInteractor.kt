@@ -3,7 +3,7 @@ package com.brady.githubjobdemo.data.api.github
 import android.content.Context
 import com.brady.githubjobdemo.Mockable
 import com.brady.githubjobdemo.R
-import com.brady.githubjobdemo.data.api.github.model.Commit
+import com.brady.githubjobdemo.data.api.github.model.Job
 
 import io.reactivex.Observable
 import retrofit2.Response
@@ -14,15 +14,14 @@ class GitHubInteractor(
         private val context: Context,
         private val api: GitHubApiService) {
 
-    class LoadCommitsRequest(val user: String, val repository: String)
-    class LoadCommitsResponse(val request: LoadCommitsRequest, val commits: List<Commit>)
+    class LoadJobsResponse( val jobs: List<Job>)
 
-    fun loadCommits(request: LoadCommitsRequest): Observable<LoadCommitsResponse> {
-        return api.listCommits(request.user, request.repository)
+    fun loadJobs(): Observable<LoadJobsResponse> {
+        return api.listJobs()
                 .toObservable()
-                .map { response -> checkResponse(response, context.getString(R.string.error_get_commits_error)) }
+                .map { response -> checkResponse(response, context.getString(R.string.error_get_jobs_error)) }
                 .map { response -> response.body() ?: emptyList() }
-                .map { commits -> LoadCommitsResponse(request, commits) }
+                .map { jobs -> LoadJobsResponse(jobs) }
                 .doOnError { error -> Timber.e(error) }
     }
 

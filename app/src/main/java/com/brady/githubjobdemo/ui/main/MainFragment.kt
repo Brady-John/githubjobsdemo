@@ -8,9 +8,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.brady.githubjobdemo.CommitItemBinding
+import com.brady.githubjobdemo.JobItemBinding
 import com.brady.githubjobdemo.R
-import com.brady.githubjobdemo.data.api.github.model.Commit
+import com.brady.githubjobdemo.data.api.github.model.Job
 import com.brady.githubjobdemo.ui.BaseFragment
 import com.brady.githubjobdemo.util.recyclerview.ArrayAdapter
 
@@ -37,8 +37,8 @@ class MainFragment : BaseFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false)
         binding.vm = viewModel
 
-        binding.commits.layoutManager = LinearLayoutManager(activity)
-        binding.commits.adapter = CommitsAdapter()
+        binding.jobs.layoutManager = LinearLayoutManager(activity)
+        binding.jobs.adapter = JobsAdapter()
 
         return binding.root
     }
@@ -48,24 +48,24 @@ class MainFragment : BaseFragment() {
         super.onDestroyView()
     }
 
-    private class CommitsAdapter : ArrayAdapter<Commit, CommitViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommitViewHolder {
+    private class JobsAdapter : ArrayAdapter<Job, JobViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JobViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
-            val binding: CommitItemBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_commit_summary, parent, false)
-            return CommitViewHolder(binding)
+            val binding: JobItemBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_job_summary, parent, false)
+            return JobViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: CommitViewHolder, position: Int) {
-            val commit = getItemAtPosition(position)
-            holder.bind(commit)
+        override fun onBindViewHolder(holder: JobViewHolder, position: Int) {
+            val job = getItemAtPosition(position)
+            holder.bind(job)
         }
     }
 
-    private class CommitViewHolder(
-            private val binding: CommitItemBinding)
+    private class JobViewHolder(
+            private val binding: JobItemBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Commit) {
+        fun bind(item: Job) {
             binding.item = item
             binding.executePendingBindings()
         }

@@ -2,7 +2,7 @@ package com.brady.githubjobdemo.ui.main
 
 import com.brady.githubjobdemo.TrampolineSchedulerRule
 import com.brady.githubjobdemo.data.api.github.GitHubInteractor
-import com.brady.githubjobdemo.data.api.github.model.Commit
+import com.brady.githubjobdemo.data.api.github.model.Job
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
 import io.reactivex.Observable
@@ -56,41 +56,35 @@ class MainViewModelTest {
     }
 
     @Test
-    fun testFetchCommitsEnabled() {
-        viewModel.username = "test"
+    fun testFetchJobsEnabled() {
         viewModel.repository = ""
-        assertFalse(viewModel.isFetchCommitsEnabled())
+        assertFalse(viewModel.isFetchJobsEnabled())
 
-        viewModel.username = ""
         viewModel.repository = "test"
-        assertFalse(viewModel.isFetchCommitsEnabled())
+        assertFalse(viewModel.isFetchJobsEnabled())
 
-        viewModel.username = ""
         viewModel.repository = ""
-        assertFalse(viewModel.isFetchCommitsEnabled())
+        assertFalse(viewModel.isFetchJobsEnabled())
 
-        viewModel.username = "test"
         viewModel.repository = ""
-        assertFalse(viewModel.isFetchCommitsEnabled())
+        assertFalse(viewModel.isFetchJobsEnabled())
 
-        viewModel.username = ""
         viewModel.repository = "test"
-        assertFalse(viewModel.isFetchCommitsEnabled())
+        assertFalse(viewModel.isFetchJobsEnabled())
 
-        viewModel.username = "test"
         viewModel.repository = "test"
-        assertTrue(viewModel.isFetchCommitsEnabled())
+        assertTrue(viewModel.isFetchJobsEnabled())
     }
 
     @Test
-    fun testFetchCommits() {
-        val mockResult = mock(GitHubInteractor.LoadCommitsResponse::class.java)
-        val mockCommit = mock(Commit::class.java)
-        whenever(mockResult.commits).thenReturn(listOf(mockCommit))
-        whenever(githubInteractor.loadCommits(any())).thenReturn(Observable.just(mockResult))
+    fun testFetchJobs() {
+        val mockResult = mock(GitHubInteractor.LoadJobsResponse::class.java)
+        val mockJob = mock(Job::class.java)
+        whenever(mockResult.jobs).thenReturn(listOf(mockJob))
+        whenever(githubInteractor.loadJobs(any())).thenReturn(Observable.just(mockResult))
 
-        assertTrue((viewModel.commits as? MainViewModel.Commits.Result)?.commits?.isEmpty() ?: false)
-        viewModel.fetchCommits()
-        assertTrue((viewModel.commits as? MainViewModel.Commits.Result)?.commits?.size == 1)
+        assertTrue((viewModel.jobs as? MainViewModel.Jobs.Result)?.jobs?.isEmpty() ?: false)
+        viewModel.fetchJobs()
+        assertTrue((viewModel.jobs as? MainViewModel.Jobs.Result)?.jobs?.size == 1)
     }
 }

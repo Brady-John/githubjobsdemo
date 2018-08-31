@@ -3,11 +3,11 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <data class=".CommitItemBinding">
+    <data class=".JobItemBinding">
 
         <variable
             name="item"
-            type="com.brady.githubjobdemo.data.api.github.model.Commit"/>
+            type="com.brady.githubjobdemo.data.api.github.model.Job"/>
     </data>
 
     <android.support.v7.widget.CardView
@@ -25,21 +25,21 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/message"
-                style="@style/TextAppearance.AppCompat.Body2"
+                android:id="@+id/company"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="@{item.commitMessage}"
-                tools:text="Commit Message"
+                android:text="@{@string/company_format(item.company)}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Company" />
 
             <TextView
-                android:id="@+id/author"
+                android:id="@+id/job_title"
                 style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,12 +47,27 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text='@{@string/author_format(item.author)}'
-                tools:text="Author Name"
+                android:text='@{@string/job_title_format(item.title)}'
+                tools:text="Job Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/company"/>
+
+            <TextView
+                android:id="@+id/location"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text='@{@string/location_format(item.location)}'
+                tools:text="Location"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/message"/>
+                app:layout_constraintTop_toBottomOf="@+id/job_title"/>
 
         </android.support.constraint.ConstraintLayout>
 
