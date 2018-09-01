@@ -1,7 +1,7 @@
 package com.brady.githubjobdemo.ui.main
 
 import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions.*
+import android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.rule.ActivityTestRule
@@ -10,11 +10,9 @@ import com.brady.githubjobdemo.EspressoMatchers.regex
 import com.brady.githubjobdemo.MainApplicationDaggerMockRule
 import com.brady.githubjobdemo.R
 import com.brady.githubjobdemo.data.api.github.GitHubInteractor
-import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsRequest
 import com.brady.githubjobdemo.data.api.github.GitHubInteractor.LoadJobsResponse
 import com.brady.githubjobdemo.data.api.github.model.Job
 import com.brady.githubjobdemo.withRecyclerView
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
 import io.reactivex.Observable
 import org.hamcrest.Matchers.not
@@ -34,7 +32,7 @@ class MainActivityEspressoTest {
 
     @Test
     fun testBuildFingerprint() {
-        whenever(gitHubInteractor.loadJobs(any())).thenReturn(Observable.empty())
+        whenever(gitHubInteractor.loadJobs()).thenReturn(Observable.empty())
 
         testRule.launchActivity(null)
         onView(withId(R.id.fingerprint)).check(matches(withText(regex("Fingerprint: .+"))))
@@ -43,9 +41,8 @@ class MainActivityEspressoTest {
     @Test
     fun testFetchJobsEnabledState() {
         val response = LoadJobsResponse(
-                LoadJobsRequest("repository"),
                 emptyList())
-        whenever(gitHubInteractor.loadJobs(any())).thenReturn(Observable.just(response))
+        whenever(gitHubInteractor.loadJobs()).thenReturn(Observable.just(response))
 
         testRule.launchActivity(null)
         onView(withId(R.id.get_jobs)).check(matches(isEnabled()))
@@ -63,7 +60,7 @@ class MainActivityEspressoTest {
     @Test
     fun testGetAndDisplayJobs() {
         val response = buildMockLoadJobsResponse()
-        whenever(gitHubInteractor.loadJobs(any())).thenReturn(response)
+        whenever(gitHubInteractor.loadJobs()).thenReturn(response)
 
         testRule.launchActivity(null)
         closeSoftKeyboard()
@@ -77,10 +74,10 @@ class MainActivityEspressoTest {
     }
 
     private fun buildMockLoadJobsResponse(): Observable<LoadJobsResponse> {
-        val request = LoadJobsRequest("android-starter-project")
-        val job = Job("Atomic Robot", "Senior Engineer", "Mason, OH")
-//                "https://atomicrobot.com/", "Full Time",
-//                "Thu August 30 19:46:36 UTC 2018", "Awesome Job")
-        return Observable.just(LoadJobsResponse(request, listOf(job)))
+        val job = Job("Atomic Robot", "Senior Engineer", "Mason, OH",
+                "https://atomicrobot.com/", "Full Time",
+                "Thu August 30 19:46:36 UTC 2018", "Awesome Job",
+                "https://google.com")
+        return Observable.just(LoadJobsResponse(listOf(job)))
     }
 }
